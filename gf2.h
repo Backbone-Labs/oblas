@@ -5,9 +5,11 @@
 #include <stdio.h>
 
 /* MSVC compatibility shims for the GCC/Clang bit-twiddling builtins
-   used in gf2.c. Mirrors the equivalent block in oblas.h; we duplicate
-   it here so gf2.c does not need to pull in the full oblas API. */
-#if defined(_MSC_VER) && !defined(__clang__)
+   used in gf2.c. Mirrors the equivalent block in oblas.h; both share
+   the _OBLAS_GCC_BUILTIN_SHIMS guard so a TU that includes both
+   headers does not redefine them. */
+#if defined(_MSC_VER) && !defined(__clang__) && !defined(_OBLAS_GCC_BUILTIN_SHIMS)
+#define _OBLAS_GCC_BUILTIN_SHIMS
 #include <intrin.h>
 static __inline int __builtin_ctz(uint32_t x) {
   unsigned long r = 0;

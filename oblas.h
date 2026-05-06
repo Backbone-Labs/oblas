@@ -7,9 +7,11 @@
 #include "octtables.h"
 
 /* MSVC compatibility shims — provide GCC/Clang builtins used by the
-   bit-twiddling routines in oblas_classic.c. Safe to include from C
-   and C++. */
-#if defined(_MSC_VER) && !defined(__clang__)
+   bit-twiddling routines in oblas_classic.c and gf2.c. Guarded so a TU
+   that includes both oblas.h and gf2.h does not redefine them. Safe to
+   include from C and C++. */
+#if defined(_MSC_VER) && !defined(__clang__) && !defined(_OBLAS_GCC_BUILTIN_SHIMS)
+#define _OBLAS_GCC_BUILTIN_SHIMS
 #include <intrin.h>
 static __inline int __builtin_ctz(uint32_t x) {
   unsigned long r = 0;
