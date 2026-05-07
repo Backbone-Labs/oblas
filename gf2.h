@@ -4,6 +4,23 @@
 #include <stdint.h>
 #include <stdio.h>
 
+/* MSVC compatibility shims for the GCC/Clang bit-twiddling builtins
+   used in gf2.c. Mirrors the equivalent block in oblas.h; both share
+   the _OBLAS_GCC_BUILTIN_SHIMS guard so a TU that includes both
+   headers does not redefine them. */
+#if defined(_MSC_VER) && !defined(__clang__) && !defined(_OBLAS_GCC_BUILTIN_SHIMS)
+#define _OBLAS_GCC_BUILTIN_SHIMS
+#include <intrin.h>
+static __inline int __builtin_ctz(uint32_t x) {
+  unsigned long r = 0;
+  _BitScanForward(&r, x);
+  return (int)r;
+}
+static __inline int __builtin_popcount(uint32_t x) {
+  return (int)__popcnt(x);
+}
+#endif
+
 #define gf2word uint32_t
 #define gf2wsz (sizeof(gf2word) * 8)
 

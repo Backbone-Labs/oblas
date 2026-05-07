@@ -1,14 +1,38 @@
 #include "oblas.h"
 #include <errno.h>
+#include <stdlib.h>
+
+#if defined(_MSC_VER)
+#include <malloc.h>
+#endif
 
 void *oalloc(size_t nmemb, size_t size, size_t align) {
-  void *aligned = NULL;
   size_t aligned_sz = ((size / align) + ((size % align) ? 1 : 0)) * align;
+  size_t total = nmemb * aligned_sz;
 
-  if (posix_memalign((void *)&aligned, align, nmemb * aligned_sz) != 0) {
+#if defined(_MSC_VER)
+  /* Argument order is (size, align), opposite of posix_memalign. */
+  void *aligned = _aligned_malloc(total, align);
+  if (!aligned) {
     exit(ENOMEM);
   }
   return aligned;
+#else
+  void *aligned = NULL;
+  if (posix_memalign(&aligned, align, total) != 0) {
+    exit(ENOMEM);
+  }
+  return aligned;
+#endif
+}
+
+void ofree(void *ptr) {
+  if (!ptr) return;
+#if defined(_MSC_VER)
+  _aligned_free(ptr);
+#else
+  free(ptr);
+#endif
 }
 
 #ifdef OBLAS_SSE

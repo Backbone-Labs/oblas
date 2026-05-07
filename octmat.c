@@ -27,7 +27,7 @@ void om_destroy(octmat *v) {
   v->rows = 0;
   v->cols = 0;
   v->cols_al = 0;
-  free(v->data);
+  ofree(v->data);
   v->data = NULL;
 }
 
